@@ -1,9 +1,7 @@
-id: queue
-enabled: true
 destinationClass: jakarta.jms.Queue
-destinationName: myTestQueue1 # must be empty whent temporary destination class is set
+destinationName: myTestQueue1
 replyDestinationClass: jakarta.jms.Queue
-replyDestinationName: myTestReplyQueue1 # must be empty when temporary destination class is set
+replyDestinationName: myTestReplyQueue1
 sources:
   - id: source-app-1
     enabled: true
@@ -11,16 +9,16 @@ sources:
       - id: producer-1
         enabled: true
         connection:
-          url: failover:(amqp://localhost:61616)
+          url: failover:(amqp://single.localcluster:51511)
           username: admin
           password: admin
-          numOfConnections: 2 # will create a thread for each conneciton
+          numOfConnections: 2 # will create a thread for each connection
           numOfSessionsPerConnection: 5 # will create a thread for each session on each connection thread
         session:
           sessionAckMode: 0 # 0 = SESSION_TRANSACTED, 1 = AUTO_ACKNOWLEDGE, 2 = CLIENT_ACKNOWLEDGE and 3 = DUPS_OK_ACKNOWLEDGE
           transactedSession: true
         message:
-          numOfMsgPerSession: 100 # -1 for keep producing forever
+          numOfMsgPerSession: 1000 # -1 for keep producing forever
           msgSizeInKb: 100
           commitOnEveryXMsgs: 1
           delayBetweenMsgs: 0
@@ -36,20 +34,18 @@ targets:
       - id: consumer-1
         enabled: true
         connection:
-            url: failover:(amqp://localhost:61616)
-            username: admin
-            password: admin
-            numOfConnections: 2 # will create a thread for each conneciton
-            numOfSessionsPerConnection: 5 # will create a thread for each session on each connection thread
+          url: failover:(amqp://single.localcluster:51511)
+          username: admin
+          password: admin
+          numOfConnections: 2 # will create a thread for each connection
+          numOfSessionsPerConnection: 5 # will create a thread for each session on each connection thread
         session:
           sessionAckMode: 0 # 0 = SESSION_TRANSACTED, 1 = AUTO_ACKNOWLEDGE, 2 = CLIENT_ACKNOWLEDGE and 3 = DUPS_OK_ACKNOWLEDGE
           transactedSession: true
         message:
-          numOfMsgPerSession: 100 # -1 for keep consuming forever
+          numOfMsgPerSession: 1000 # -1 for keep consuming forever
           msgTimeoutInMs: -1 # -1 for wait forever
           commitOnEveryXMsgs: 1
           delayBetweenMsgs: 0
           sendReply: true # Consume and send reply back
           msgSelector:
-
-

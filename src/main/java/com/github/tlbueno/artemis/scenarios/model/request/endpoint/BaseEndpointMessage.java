@@ -1,18 +1,18 @@
-package com.github.tlbueno.artemis_scenarios.models.scenario;
+package com.github.tlbueno.artemis.scenarios.model.request.endpoint;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.log4j.Log4j2;
 
 @EqualsAndHashCode()
-@Getter
 @Log4j2
-@Setter
+@SuperBuilder(setterPrefix = "with")
 @ToString(callSuper = true)
-public class ScenarioMessage {
+@Getter
+public abstract class BaseEndpointMessage {
     @NonNull
     private Integer commitOnEveryXMsgs;
     @NonNull

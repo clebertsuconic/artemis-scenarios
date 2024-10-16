@@ -1,6 +1,7 @@
-package com.github.tlbueno.artemis_scenarios;
+package com.github.tlbueno.artemis.scenarios;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import com.github.tlbueno.artemis.scenarios.model.request.BaseScenarioRequest;
+import com.github.tlbueno.artemis.scenarios.service.Scenario;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSException;
@@ -12,20 +13,29 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-@ApplicationScoped
 @EqualsAndHashCode()
 @Log4j2
 @ToString(callSuper = true)
 public class ResourceManager {
+    private static final Set<UUID> generatedUUIDs = new HashSet<>();
     private static final ConcurrentHashMap<String, JmsPoolConnectionFactory> jmsPool = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Scenario<? extends BaseScenarioRequest>> scenarioMap = new ConcurrentHashMap<>();
     private static final ExecutorService services = Executors.newCachedThreadPool();
     private static final ConcurrentHashMap<String, String> temporaryDestinationName = new ConcurrentHashMap<>();
+
+    @Locked
+    public static void addScenario(String id, Scenario<? extends BaseScenarioRequest> scenario) {
+        scenarioMap.put(id, scenario);
+    }
 
     @Locked
     public static Destination createTemporaryDestination(String sessionId, String queueId, Session session) {
@@ -33,12 +43,12 @@ public class ResourceManager {
         String destinationName = temporaryDestinationName.get(queueId);
         Destination destination;
         try {
+            // TODO: create temporary topic
             if (destinationName == null || destinationName.isEmpty() || destinationName.isBlank()) {
                 destination = session.createTemporaryQueue();
                 destinationName = ((TemporaryQueue) destination).getQueueName();
                 temporaryDestinationName.put(queueId, destinationName);
                 LOGGER.debug("[{}] - Temporary queue destination created: {}", sessionId, destinationName);
-
             } else {
                 LOGGER.debug("[{}] - Temporary queue destination {} already created, skipping creation", sessionId,
                         destinationName);
@@ -53,10 +63,18 @@ public class ResourceManager {
     }
 
     @Locked
+    public static UUID generateUniqueUUID() {
+        UUID newUUID;
+        do {
+            newUUID = UUID.randomUUID();
+        } while (!generatedUUIDs.add(newUUID)); // Keep generating until a unique UUID is added to the set
+        return newUUID;
+    }
+
+    @Locked
     public static JmsPoolConnectionFactory getJmsPoolConnectionFactory(String id, int numOfConnections,
                                                                        int numOfSessionsPerConnection,
                                                                        ConnectionFactory connectionFactory) {
-        LOGGER.debug("[{}] - About to create JMS connection pool", id);
         JmsPoolConnectionFactory pool;
         if (jmsPool.containsKey(id)) {
             LOGGER.debug("[{}] - JMS connection pool already exist, skipping creation", id);
@@ -76,25 +94,28 @@ public class ResourceManager {
     }
 
     @Locked
+    public static Scenario<? extends BaseScenarioRequest> getScenario(String id) {
+        return scenarioMap.get(id);
+    }
+
+    @Locked
+    public static List<Scenario<? extends BaseScenarioRequest>> getScenarios() {
+        return scenarioMap.values().stream().toList();
+    }
+
+    @Locked
     public static void removeJmsPoolConnectionFactory(String id) {
-        LOGGER.debug("[{}] - About to remove JMS connection pool", id);
+        LOGGER.debug("[{}] - Removing to remove JMS connection pool", id);
         jmsPool.remove(id);
     }
 
+    @Locked
+    public static void removeScenario(String id) {
+        scenarioMap.remove(id);
+    }
+
     public static Future<?> submitTask(Runnable task) {
-        LOGGER.trace("Submitting task");
         return services.submit(task);
     }
 
-    public static void waitForTasks(List<Future<?>> tasks) {
-        LOGGER.debug("Waiting for tasks");
-        boolean keepRunning = true;
-        while (keepRunning) {
-            LOGGER.trace("All tasks are not done yet");
-            if (tasks.stream().allMatch(Future::isDone)) {
-                LOGGER.trace("All tasks are done");
-                keepRunning = false;
-            }
-        }
-    }
 }

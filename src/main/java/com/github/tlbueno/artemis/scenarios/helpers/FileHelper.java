@@ -1,4 +1,4 @@
-package com.github.tlbueno.artemis_scenarios.helpers;
+package com.github.tlbueno.artemis.scenarios.helpers;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;

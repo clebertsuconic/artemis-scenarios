@@ -1,4 +1,4 @@
-package com.github.tlbueno.artemis_scenarios.helpers;
+package com.github.tlbueno.artemis.scenarios.helpers;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 
+import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,6 +36,24 @@ public class TimeHelper {
             }
         } else {
             LOGGER.trace("Delay is < 0, skipping waiting");
+        }
+    }
+
+    /**
+     * Wait for a list of future tasks finish
+     *
+     * @param id    task id for logging propose
+     * @param tasks list of tasks
+     */
+    public static void waitForTasks(String id, List<Future<?>> tasks) {
+        LOGGER.debug("[{}] - Waiting for tasks", id);
+        boolean keepChecking = true;
+        while (keepChecking) {
+            LOGGER.trace("[{}] - All tasks are not done yet", id);
+            if (tasks.stream().allMatch(Future::isDone)) {
+                LOGGER.trace("[{}] - All tasks are done", id);
+                keepChecking = false;
+            }
         }
     }
 }

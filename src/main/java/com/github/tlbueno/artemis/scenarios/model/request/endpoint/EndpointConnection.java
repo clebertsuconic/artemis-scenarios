@@ -1,18 +1,20 @@
-package com.github.tlbueno.artemis_scenarios.models.scenario;
+package com.github.tlbueno.artemis.scenarios.model.request.endpoint;
 
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
 import lombok.extern.log4j.Log4j2;
 
+@Builder(setterPrefix = "with")
 @EqualsAndHashCode()
 @Getter
+@Jacksonized
 @Log4j2
-@Setter
 @ToString(callSuper = true)
-public class ScenarioConnection {
+public class EndpointConnection {
     @NonNull
     private Integer numOfConnections;
     @NonNull
