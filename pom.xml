@@ -12,9 +12,6 @@
         <jackson-jakarta-rs-yaml-provider.version>2.18.0</jackson-jakarta-rs-yaml-provider.version>
         <log4j2-jboss-logmanager.version>2.0.1.Final</log4j2-jboss-logmanager.version>
         <lombok.version>1.18.34</lombok.version>
-        <maven.compiler.release>21</maven.compiler.release>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <qpid-jms-client.version>2.6.1</qpid-jms-client.version>
