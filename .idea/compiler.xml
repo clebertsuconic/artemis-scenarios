@@ -6,13 +6,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="artemis-scenarios" />
+        <module name="scenarios-app" />
+        <module name="control" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="artemis-scenarios" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="artemis-scenarios" options="-parameters" />
+      <module name="control" options="-parameters" />
+      <module name="scenarios-app" options="-parameters" />
     </option>
   </component>
 </project>
