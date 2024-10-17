@@ -23,12 +23,34 @@ public class BaseRequest {
    String protocol;
    String uri;
 
+   String user;
+
+   String password;
+
    public String getProtocol() {
       return protocol;
    }
 
    public BaseRequest setProtocol(String protocol) {
       this.protocol = protocol;
+      return this;
+   }
+
+   public String getUser() {
+      return user;
+   }
+
+   public BaseRequest setUser(String user) {
+      this.user = user;
+      return this;
+   }
+
+   public String getPassword() {
+      return password;
+   }
+
+   public BaseRequest setPassword(String password) {
+      this.password = password;
       return this;
    }
 

@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.scenarios.model.requests;
 
-public class OrdersIncome extends BaseRequest {
+public class OrdersIncomeRequest extends BaseRequest {
    int numberOfOrders;
    int commitInterval;
 
@@ -25,7 +25,7 @@ public class OrdersIncome extends BaseRequest {
       return numberOfOrders;
    }
 
-   public OrdersIncome setNumberOfOrders(int numberOfOrders) {
+   public OrdersIncomeRequest setNumberOfOrders(int numberOfOrders) {
       this.numberOfOrders = numberOfOrders;
       return this;
    }
@@ -34,7 +34,7 @@ public class OrdersIncome extends BaseRequest {
       return commitInterval;
    }
 
-   public OrdersIncome setCommitInterval(int commitInterval) {
+   public OrdersIncomeRequest setCommitInterval(int commitInterval) {
       this.commitInterval = commitInterval;
       return this;
    }
@@ -48,7 +48,7 @@ public class OrdersIncome extends BaseRequest {
       if (!super.equals(o))
          return false;
 
-      OrdersIncome that = (OrdersIncome) o;
+      OrdersIncomeRequest that = (OrdersIncomeRequest) o;
 
       if (numberOfOrders != that.numberOfOrders)
          return false;

@@ -15,19 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.scenarios.service;
+package org.apache.activemq.artemis.scenarios.resource;
 
-import jakarta.jms.ConnectionFactory;
-import org.apache.activemq.artemis.scenarios.model.requests.OrdersIncome;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class IncomeService extends BaseService {
+public class Constants {
 
-   public void process(OrdersIncome income) throws Exception {
-      ConnectionFactory factory = createConnectionFactory(income.getProtocol(), income.getUri());
-
-
-      // TODO
-
-   }
-
+   public static final String APPLICATION_YAML = "application/yaml";
 }

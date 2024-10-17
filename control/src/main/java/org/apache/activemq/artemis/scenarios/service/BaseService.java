@@ -17,19 +17,30 @@
 
 package org.apache.activemq.artemis.scenarios.service;
 
-import jakarta.jms.ConnectionFactory;
+import javax.jms.ConnectionFactory;
+
+import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class BaseService {
 
-   protected ConnectionFactory createConnectionFactory(String protocol, String uri) {
-      switch (protocol.toUpperCase()) {
-         case "AMQP":
 
-            // TODO
-            return null;
+   public static ConnectionFactory createConnectionFactory(String protocol, String uri) {
+      if (protocol.toUpperCase().equals("OPENWIRE")) {
+         throw new RuntimeException("not implemented yet");
+         //return new org.apache.activemq.ActiveMQConnectionFactory(uri);
+      } else if (protocol.toUpperCase().equals("AMQP")) {
+
+         if (uri.startsWith("tcp://")) {
+            // replacing tcp:// by amqp://
+            uri = "amqp" + uri.substring(3);
+         }
+         return new JmsConnectionFactory(uri);
+      } else if (protocol.toUpperCase().equals("CORE") || protocol.toUpperCase().equals("ARTEMIS")) {
+         return new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(uri);
+      } else {
+         throw new IllegalStateException("Unknown:" + protocol);
       }
-
-      return null;
    }
+
 
 }
