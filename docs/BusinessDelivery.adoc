@@ -1,0 +1,9 @@
+= Business Solution
+
+This application simulates an internet shop delivery. Income orders are generated from an external system and we must route the packages accordingly.
+
+Process:
+
+
+TODO
+            b
