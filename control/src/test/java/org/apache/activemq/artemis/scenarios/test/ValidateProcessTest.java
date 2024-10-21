@@ -17,13 +17,52 @@
 
 package org.apache.activemq.artemis.scenarios.test;
 
+import java.io.File;
+
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.scenarios.model.requests.BusinessProcessRequest;
 import org.apache.activemq.artemis.scenarios.model.requests.OrdersIncomeRequest;
 import org.apache.activemq.artemis.scenarios.service.BusinessService;
 import org.apache.activemq.artemis.scenarios.service.IncomeService;
+import org.apache.activemq.artemis.util.ServerUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestProcess {
+public class ValidateProcessTest {
+
+
+   private static final String HOME_LOCATION = "./target/artemis-release/apache-artemis-2.39.0-SNAPSHOT";
+   private static final String SERVER_NAME = "myServer";
+   private static final String ARTEMIS_INSTANCE = "./target/" + SERVER_NAME;
+
+   private Process serverProcess;
+
+   private String QUEUE_LIST = "IncomeOrder,Manufacturing,Manufacturing.Line0,Manufacturing.Line1,Manufacturing.Line2,Manufacturing.Line3,Manufacturing.Line4,Manufacturing.Line5,Manufacturing.Line6,Manufacturing.Line7,Manufacturing.Line8,Manufacturing.Line9,Manufacturing.Line10";
+
+   @BeforeAll
+   public static void createServer() throws Exception {
+      {
+         HelperCreate cliCreateServer = new HelperCreate(new File(HOME_LOCATION));
+         cliCreateServer.setArtemisInstance(new File(ARTEMIS_INSTANCE));
+         cliCreateServer.addArgs("--queues", "queueTest,Div,Div.0,Div.1,Div.2");
+         cliCreateServer.createServer();
+      }
+   }
+
+   @BeforeEach
+   public void startProcess() throws Exception {
+      serverProcess = ServerUtil.startServer("./target/myServer", "myServer");
+      ServerUtil.waitForServerToStart(0, 5000);
+
+   }
+
+   @AfterEach
+   public void killProcess() throws Throwable {
+      serverProcess.destroyForcibly();
+      serverProcess.waitFor();
+   }
 
    @Test
    public void testProcess() throws Exception {
@@ -41,5 +80,4 @@ public class TestProcess {
       BusinessService businessService = new BusinessService();
       businessService.process(businessProcessRequest);
    }
-
 }

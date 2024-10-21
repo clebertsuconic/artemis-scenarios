@@ -2,8 +2,45 @@
 
 This application simulates an internet shop delivery. Income orders are generated from an external system and we must route the packages accordingly.
 
-Process:
+Queues used in this application
 
 
-TODO
-            b
+IncomeOrder
+* User inputs an order
+properties:
+* productID = Integer (range 1 to 10)
+* quantity = number of items (positive integer > 0 & <= 1000)
+* customerID = not used for now
+* zip code = zip code for the customer (between 1 and 100)
+
+
+Manufacturing:
+Address used to divert manufacturing lines
+
+
+Manufacturing1 ~ Manufacturing10
+(There will be a divert of productID = id)
+
+
+
+ManufacturedEvent
+* productID
+* quantity input
+
+PickupEvent
+* productID
+* quantity output
+
+
+Delivery:
+Topic with durable subscriptions to choose from the options.
+
+DeliveryCompanyA
+* zipCode <= 50
+
+DeliveryCompanyB
+* zipCode > 50
+
+
+
+Delivered
