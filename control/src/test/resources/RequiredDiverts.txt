@@ -1,65 +1,65 @@
       <diverts>
-         <divert name="Manufacturing.Line0">
+         <divert name="Div.Manufacturing.Line0">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line0</forwarding-address>
             <filter string="productID=0"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line1">
+         <divert name="Div.Manufacturing.Line1">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line1</forwarding-address>
             <filter string="productID=1"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line2">
+         <divert name="Div.Manufacturing.Line2">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line2</forwarding-address>
             <filter string="productID=2"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line3">
+         <divert name="Div.Manufacturing.Line3">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line3</forwarding-address>
             <filter string="productID=3"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line4">
+         <divert name="Div.Manufacturing.Line4">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line4</forwarding-address>
             <filter string="productID=4"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line5">
+         <divert name="Div.Manufacturing.Line5">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line5</forwarding-address>
             <filter string="productID=5"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line6">
+         <divert name="Div.Manufacturing.Line6">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line6</forwarding-address>
             <filter string="productID=6"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line7">
+         <divert name="Div.Manufacturing.Line7">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line7</forwarding-address>
             <filter string="productID=7"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line8">
+         <divert name="Div.Manufacturing.Line8">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line8</forwarding-address>
             <filter string="productID=8"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line9">
+         <divert name="Div.Manufacturing.Line9">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line9</forwarding-address>
             <filter string="productID=9"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Manufacturing.Line10">
+         <divert name="Div.Manufacturing.Line10">
             <address>Manufacturing</address>
             <forwarding-address>Manufacturing.Line10</forwarding-address>
             <filter string="productID=10"/>

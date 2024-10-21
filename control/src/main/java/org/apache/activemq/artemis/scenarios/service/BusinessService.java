@@ -36,8 +36,8 @@ public class BusinessService extends BaseService {
       try (Connection connection = cf.createConnection(bpRequest.getUser(), bpRequest.getPassword())) {
 
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         MessageConsumer consumer = session.createConsumer(session.createQueue("Orders"));
-         MessageProducer producer = session.createProducer(session.createQueue("Production"));
+         MessageConsumer consumer = session.createConsumer(session.createQueue("IncomeOrder"));
+         MessageProducer producer = session.createProducer(session.createQueue("Manufacturing"));
          connection.start();
          for (int i = 0; i < bpRequest.getElements(); i++) {
             Message message = consumer.receive(5000);

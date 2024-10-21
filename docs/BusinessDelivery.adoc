@@ -8,10 +8,10 @@ Queues used in this application
 IncomeOrder
 * User inputs an order
 properties:
-* productID = Integer (range 1 to 10)
+* productID = Integer (range 0 to 10)
 * quantity = number of items (positive integer > 0 & <= 1000)
 * customerID = not used for now
-* zip code = zip code for the customer (between 1 and 100)
+* zipCode = zip code for the customer (between 1 and 100)
 
 
 Manufacturing:
@@ -19,7 +19,7 @@ Address used to divert manufacturing lines
 
 
 Manufacturing1 ~ Manufacturing10
-(There will be a divert of productID = id)
+(10 Diverts, filtering with id = 1 towards the actual queue)
 
 
 
@@ -35,12 +35,12 @@ PickupEvent
 Delivery:
 Topic with durable subscriptions to choose from the options.
 
-DeliveryCompanyA
+There will be two subscriptions:
 * zipCode <= 50
-
-DeliveryCompanyB
 * zipCode > 50
 
 
 
-Delivered
+Queue Delivered:
+
+Information that the queue Was delivered.

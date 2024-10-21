@@ -21,9 +21,11 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.scenarios.model.requests.OrdersIncomeRequest;
 import org.apache.activemq.artemis.scenarios.model.response.OrdersResponse;
+import org.apache.activemq.artemis.utils.RandomUtil;
 
 public class IncomeService extends BaseService {
 
@@ -33,9 +35,13 @@ public class IncomeService extends BaseService {
       try (Connection connection = factory.createConnection(income.getUser(), income.getPassword())) {
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 
-         MessageProducer producer = session.createProducer(session.createQueue("Orders"));
+         MessageProducer producer = session.createProducer(session.createQueue("IncomeOrder"));
 
          for (int i = 0; i < income.getNumberOfOrders(); i++) {
+            TextMessage message = session.createTextMessage("this is a test " + i);
+            message.setIntProperty("productID", RandomUtil.randomInterval(0, 10));
+            message.setIntProperty("quantity", RandomUtil.randomInterval(1, 30));
+            message.setIntProperty("zipCode", RandomUtil.randomInterval(1, 100));
             producer.send(session.createTextMessage("This is a test " + i));
          }
 
