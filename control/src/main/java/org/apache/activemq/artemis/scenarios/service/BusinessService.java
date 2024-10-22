@@ -21,17 +21,16 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.scenarios.model.requests.BusinessProcessRequest;
 import org.apache.activemq.artemis.scenarios.model.response.BaseResponse;
+import org.apache.activemq.artemis.scenarios.service.business.ManufactureRouterBusiness;
+import org.apache.activemq.artemis.scenarios.service.business.ProductionLineBusiness;
 
-public class ManufacturingRouteService extends BaseService {
+public class BusinessService extends BaseService {
 
-   public static final String OUTPUT_ADDRESS = "Manufacturing";
-   public static final String INCOME_ADDRESS = "IncomeOrder";
 
    Connection[] connections;
 
@@ -40,7 +39,8 @@ public class ManufacturingRouteService extends BaseService {
       ConnectionFactory cf = createConnectionFactory(bpRequest.getProtocol(), bpRequest.getUri());
       for (int i = 0; i < connections.length; i++) {
          connections[i] = cf.createConnection(bpRequest.getUser(), bpRequest.getPassword());
-         configureListener(connections[i]);
+         ManufactureRouterBusiness.configureListener(connections[i]);
+         ProductionLineBusiness.configureListener(connections[i]);
       }
    }
 
@@ -73,43 +73,5 @@ public class ManufacturingRouteService extends BaseService {
 
       return new BaseResponse().setOk(true);
    }
-
-
-   public void configureListener(Connection connection) throws Exception {
-      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-      MessageConsumer consumer = session.createConsumer(session.createQueue(INCOME_ADDRESS));
-      Listener listener = new Listener(session, consumer);
-      consumer.setMessageListener(listener);
-      connection.start();
-   }
-
-
-   private class Listener extends BaseListener {
-
-      MessageProducer producer;
-
-      Listener(Session session, MessageConsumer consumer) throws Exception {
-         super(session, consumer);
-         producer = session.createProducer(session.createQueue(OUTPUT_ADDRESS));
-      }
-
-      @Override
-      public void onMessage(Message message) {
-         try {
-            producer.send(message);
-            session.commit();
-         } catch (Exception e) {
-            e.printStackTrace();
-            try {
-               session.rollback();
-            } catch (Throwable e2) {
-               e.printStackTrace();
-            }
-         }
-      }
-   }
-
-
-
 
 }

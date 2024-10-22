@@ -24,8 +24,9 @@ import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.scenarios.model.requests.BusinessProcessRequest;
 import org.apache.activemq.artemis.scenarios.model.requests.OrdersIncomeRequest;
-import org.apache.activemq.artemis.scenarios.service.ManufacturingRouteService;
+import org.apache.activemq.artemis.scenarios.service.BusinessService;
 import org.apache.activemq.artemis.scenarios.service.IncomeService;
+import org.apache.activemq.artemis.scenarios.service.business.ManufactureRouterBusiness;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.Waiter;
@@ -54,7 +55,7 @@ public class ValidateProcessTest {
 
    private Process serverProcess;
 
-   private static String QUEUE_LIST = "IncomeOrder,Manufacturing.Line0,Manufacturing.Line1,Manufacturing.Line2,Manufacturing.Line3,Manufacturing.Line4,Manufacturing.Line5,Manufacturing.Line6,Manufacturing.Line7,Manufacturing.Line8,Manufacturing.Line9";
+   private static String QUEUE_LIST = "ProductionCompletion,IncomeOrder,Manufacturing.Line0,Manufacturing.Line1,Manufacturing.Line2,Manufacturing.Line3,Manufacturing.Line4,Manufacturing.Line5,Manufacturing.Line6,Manufacturing.Line7,Manufacturing.Line8,Manufacturing.Line9";
    private static String ADDRESS_LIST = "Delivery";
 
    @BeforeAll
@@ -119,7 +120,7 @@ public class ValidateProcessTest {
 
       businessProcessRequest.setElements(nElements).setConnections(10);
 
-      ManufacturingRouteService businessService = new ManufacturingRouteService();
+      BusinessService businessService = new BusinessService();
       businessService.process(businessProcessRequest);
       System.out.println("Done");
    }
@@ -138,21 +139,21 @@ public class ValidateProcessTest {
 
       businessProcessRequest.setElements(nElements).setConnections(10);
 
-      ManufacturingRouteService manufacturingRouteService = new ManufacturingRouteService();
+      BusinessService manufacturingRouteService = new BusinessService();
       manufacturingRouteService.startConnections(businessProcessRequest);
 
       SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
 
       Waiter.waitFor(() -> {
          try {
-            return simpleManagement.getMessageCountOnQueue(ManufacturingRouteService.INCOME_ADDRESS) == 0;
+            return simpleManagement.getMessageCountOnQueue(ManufactureRouterBusiness.INCOME_ADDRESS) == 0;
          } catch (Exception e) {
             e.printStackTrace();
             return false;
          }
       }, TimeUnit.SECONDS, 300, TimeUnit.MILLISECONDS, 100);
 
-      assertEquals(0,  simpleManagement.getMessageCountOnQueue(ManufacturingRouteService.INCOME_ADDRESS));
+      assertEquals(0,  simpleManagement.getMessageCountOnQueue(ManufactureRouterBusiness.INCOME_ADDRESS));
 
       manufacturingRouteService.closeConnections();
 

@@ -5,42 +5,37 @@ This application simulates an internet shop delivery. Income orders are generate
 Queues used in this application
 
 
-IncomeOrder
+- IncomeOrder:
 * User inputs an order
 properties:
-* productID = Integer (range 0 to 10)
-* quantity = number of items (positive integer > 0 & <= 1000)
-* customerID = not used for now
-* zipCode = zip code for the customer (between 1 and 100)
+** productID = Integer (range 0 to 10)
+** quantity = number of items (positive integer > 0 & <= 1000)
+** customerID = not used for now
+** zipCode = zip code for the customer (between 1 and 100)
 
 
-Manufacturing:
+- Manufacturing:
 Address used to divert manufacturing lines
 
 
-Manufacturing1 ~ Manufacturing10
-(10 Diverts, filtering with id = 1 towards the actual queue)
+- Manufacturing.Line0 ~ Manufacturing.Line9
+** (10 Diverts, filtering with id = [0-9])
+
+- ProductionCompletion
+
+- PickupEvent
 
 
-
-ManufacturedEvent
-* productID
-* quantity input
-
-PickupEvent
-* productID
-* quantity output
+- Delivery:
+* Topic with durable subscriptions to choose from the options.
 
 
-Delivery:
-Topic with durable subscriptions to choose from the options.
-
-There will be two subscriptions:
+- There will be two subscriptions:
 * zipCode <= 50
 * zipCode > 50
 
 
 
-Queue Delivered:
+- Queue Delivered:
 
 Information that the queue Was delivered.
