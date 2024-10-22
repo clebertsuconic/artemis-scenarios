@@ -18,26 +18,33 @@
 package org.apache.activemq.artemis.scenarios.test;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.scenarios.model.requests.BusinessProcessRequest;
 import org.apache.activemq.artemis.scenarios.model.requests.OrdersIncomeRequest;
-import org.apache.activemq.artemis.scenarios.service.BusinessService;
+import org.apache.activemq.artemis.scenarios.service.ManufacturingRouteService;
 import org.apache.activemq.artemis.scenarios.service.IncomeService;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.FileUtil;
+import org.apache.activemq.artemis.utils.Waiter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValidateProcessTest {
 
    // Set this to false if you want to create and start your own server
-   public static final boolean CREATE_SERVERS = false;
+   public static final boolean CREATE_SERVERS = true;
+
+   // Set this to true if you want to enable tracing on the server
+   public static final boolean TRACE_LOGS = false;
 
    private static final String DIVERT_CONFIGURATION = "RequiredDiverts.txt";
 
@@ -47,8 +54,7 @@ public class ValidateProcessTest {
 
    private Process serverProcess;
 
-
-   private static String QUEUE_LIST = "IncomeOrder,Manufacturing.Line0,Manufacturing.Line1,Manufacturing.Line2,Manufacturing.Line3,Manufacturing.Line4,Manufacturing.Line5,Manufacturing.Line6,Manufacturing.Line7,Manufacturing.Line8,Manufacturing.Line9,Manufacturing.Line10";
+   private static String QUEUE_LIST = "IncomeOrder,Manufacturing.Line0,Manufacturing.Line1,Manufacturing.Line2,Manufacturing.Line3,Manufacturing.Line4,Manufacturing.Line5,Manufacturing.Line6,Manufacturing.Line7,Manufacturing.Line8,Manufacturing.Line9";
    private static String ADDRESS_LIST = "Delivery";
 
    @BeforeAll
@@ -56,34 +62,35 @@ public class ValidateProcessTest {
       if (!CREATE_SERVERS) {
          return;
       }
-      {
-         FileUtil.deleteDirectory(ARTEMIS_INSTANCE);
-         HelperCreate cliCreateServer = new HelperCreate(new File(HOME_LOCATION));
-         cliCreateServer.setArtemisInstance(ARTEMIS_INSTANCE);
-         cliCreateServer.addArgs("--queues", QUEUE_LIST);
-         cliCreateServer.addArgs("--addresses", ADDRESS_LIST);
-         cliCreateServer.createServer();
+      FileUtil.deleteDirectory(ARTEMIS_INSTANCE);
+
+      HelperCreate cliCreateServer = new HelperCreate(new File(HOME_LOCATION));
+      cliCreateServer.setArtemisInstance(ARTEMIS_INSTANCE);
+      cliCreateServer.addArgs("--queues", QUEUE_LIST);
+      cliCreateServer.addArgs("--addresses", ADDRESS_LIST);
+      cliCreateServer.createServer();
 
 
-         String divertConfig = FileUtil.readFile(ValidateProcessTest.class.getClassLoader().getResourceAsStream(DIVERT_CONFIGURATION));
-         assertNotNull(divertConfig);
-         File brokerXML = new File(ARTEMIS_INSTANCE, "/etc/broker.xml");
-         assertTrue(FileUtil.findReplace(brokerXML, "</acceptors>", "</acceptors>\n" + divertConfig));
+      String divertConfig = FileUtil.readFile(ValidateProcessTest.class.getClassLoader().getResourceAsStream(DIVERT_CONFIGURATION));
+      assertNotNull(divertConfig);
+      File brokerXML = new File(ARTEMIS_INSTANCE, "/etc/broker.xml");
+      assertTrue(FileUtil.findReplace(brokerXML, "</acceptors>", "</acceptors>\n" + divertConfig));
+
+      if (TRACE_LOGS) {
+         replaceLogs(ARTEMIS_INSTANCE);
       }
    }
 
-   @BeforeEach
-   public void beforeTest() {
-      if (!CREATE_SERVERS) {
-         return;
-      }
-      File dataDirectory = new File(ARTEMIS_INSTANCE, "./data");
-      FileUtil.deleteDirectory(dataDirectory);
+   private static void replaceLogs(File serverLocation) throws Exception {
+      File log4j = new File(serverLocation, "/etc/log4j2.properties");
+      assertTrue(FileUtil.findReplace(log4j, "logger.artemis_utils.level=INFO", "logger.artemis_utils.level=INFO\n" + "\n" + "logger.divert.name=org.apache.activemq.artemis.core.server.impl.DivertImpl\nlogger.divert.level=TRACE"));
    }
 
    @BeforeEach
    public void startProcess() throws Exception {
       if (CREATE_SERVERS) {
+         File dataDirectory = new File(ARTEMIS_INSTANCE, "./data");
+         FileUtil.deleteDirectory(dataDirectory);
          serverProcess = ServerUtil.startServer("./target/myServer", "myServer");
          ServerUtil.waitForServerToStart(0, 5000);
       }
@@ -94,13 +101,15 @@ public class ValidateProcessTest {
       if (CREATE_SERVERS) {
          serverProcess.destroyForcibly();
          serverProcess.waitFor();
+         serverProcess = null;
       }
    }
 
    @Test
    public void testProcess() throws Exception {
+      int nElements = 5000;
       OrdersIncomeRequest ordersIncomeRequest = new OrdersIncomeRequest();
-      ordersIncomeRequest.setNumberOfOrders(1).setCommitInterval(100).setUri("tcp://localhost:61616").setProtocol("CORE");
+      ordersIncomeRequest.setNumberOfOrders(nElements).setCommitInterval(100).setUri("tcp://localhost:61616").setProtocol("CORE");
 
       IncomeService incomeService = new IncomeService();
       incomeService.process(ordersIncomeRequest);
@@ -108,9 +117,46 @@ public class ValidateProcessTest {
       BusinessProcessRequest businessProcessRequest = new BusinessProcessRequest();
       businessProcessRequest.setUri("tcp://localhost:61616").setProtocol("CORE");
 
-      businessProcessRequest.setElements(1).setConnections(10);
+      businessProcessRequest.setElements(nElements).setConnections(10);
 
-      BusinessService businessService = new BusinessService();
+      ManufacturingRouteService businessService = new ManufacturingRouteService();
       businessService.process(businessProcessRequest);
+      System.out.println("Done");
+   }
+
+   @Test
+   public void testConnections() throws Exception {
+      int nElements = 5000;
+      OrdersIncomeRequest ordersIncomeRequest = new OrdersIncomeRequest();
+      ordersIncomeRequest.setNumberOfOrders(nElements).setCommitInterval(100).setUri("tcp://localhost:61616").setProtocol("CORE");
+
+      IncomeService incomeService = new IncomeService();
+      incomeService.process(ordersIncomeRequest);
+
+      BusinessProcessRequest businessProcessRequest = new BusinessProcessRequest();
+      businessProcessRequest.setUri("tcp://localhost:61616").setProtocol("CORE");
+
+      businessProcessRequest.setElements(nElements).setConnections(10);
+
+      ManufacturingRouteService manufacturingRouteService = new ManufacturingRouteService();
+      manufacturingRouteService.startConnections(businessProcessRequest);
+
+      SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
+
+      Waiter.waitFor(() -> {
+         try {
+            return simpleManagement.getMessageCountOnQueue(ManufacturingRouteService.INCOME_ADDRESS) == 0;
+         } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+         }
+      }, TimeUnit.SECONDS, 300, TimeUnit.MILLISECONDS, 100);
+
+      assertEquals(0,  simpleManagement.getMessageCountOnQueue(ManufacturingRouteService.INCOME_ADDRESS));
+
+      manufacturingRouteService.closeConnections();
+
+
+      System.out.println("Done");
    }
 }

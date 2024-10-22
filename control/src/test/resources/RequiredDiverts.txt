@@ -59,10 +59,4 @@
             <filter string="productID=9"/>
             <exclusive>true</exclusive>
          </divert>
-         <divert name="Div.Manufacturing.Line10">
-            <address>Manufacturing</address>
-            <forwarding-address>Manufacturing.Line10</forwarding-address>
-            <filter string="productID=10"/>
-            <exclusive>true</exclusive>
-         </divert>
       </diverts>

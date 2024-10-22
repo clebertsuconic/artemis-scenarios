@@ -15,31 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.scenarios.model.requests;
+package org.apache.activemq.artemis.scenarios.service;
 
-import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.Session;
 
-public class BusinessProcessRequest extends BaseRequest {
-   int connections;
+public abstract class BaseListener implements MessageListener {
 
-   // TODO remove this
-   int elements;
+   protected final Session session;
+   protected final MessageConsumer consumer;
 
-   public int getElements() {
-      return elements;
+
+   public BaseListener(Session session, MessageConsumer consumer) throws Exception {
+      this.session = session;
+      this.consumer = consumer;
    }
 
-   public BusinessProcessRequest setElements(int elements) {
-      this.elements = elements;
-      return this;
-   }
 
-   public int getConnections() {
-      return connections;
-   }
-
-   public BusinessProcessRequest setConnections(int connections) {
-      this.connections = connections;
-      return this;
-   }
 }

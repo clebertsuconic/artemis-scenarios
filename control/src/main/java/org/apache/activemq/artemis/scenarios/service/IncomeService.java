@@ -36,13 +36,17 @@ public class IncomeService extends BaseService {
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 
          MessageProducer producer = session.createProducer(session.createQueue("IncomeOrder"));
+         int productID = 0;
 
          for (int i = 0; i < income.getNumberOfOrders(); i++) {
             TextMessage message = session.createTextMessage("this is a test " + i);
-            message.setIntProperty("productID", RandomUtil.randomInterval(0, 10));
+            message.setIntProperty("productID", productID);
             message.setIntProperty("quantity", RandomUtil.randomInterval(1, 30));
             message.setIntProperty("zipCode", RandomUtil.randomInterval(1, 100));
-            producer.send(session.createTextMessage("This is a test " + i));
+            producer.send(message);
+            if (++productID >= 10) {
+               productID = 0;
+            }
          }
 
          session.commit();
