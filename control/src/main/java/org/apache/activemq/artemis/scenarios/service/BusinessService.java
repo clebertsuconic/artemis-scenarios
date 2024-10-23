@@ -26,6 +26,8 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.scenarios.model.requests.BusinessProcessRequest;
 import org.apache.activemq.artemis.scenarios.model.response.BaseResponse;
+import org.apache.activemq.artemis.scenarios.service.business.DelivererBusiness;
+import org.apache.activemq.artemis.scenarios.service.business.DeliveryRouteBusiness;
 import org.apache.activemq.artemis.scenarios.service.business.ManufactureRouterBusiness;
 import org.apache.activemq.artemis.scenarios.service.business.ProductionLineBusiness;
 
@@ -33,6 +35,7 @@ public class BusinessService extends BaseService {
 
 
    Connection[] connections;
+   Connection[] topicConnections;
 
    public void startConnections(BusinessProcessRequest bpRequest) throws Exception {
       connections = new Connection[bpRequest.getConnections()];
@@ -41,6 +44,8 @@ public class BusinessService extends BaseService {
          connections[i] = cf.createConnection(bpRequest.getUser(), bpRequest.getPassword());
          ManufactureRouterBusiness.configureListener(connections[i]);
          ProductionLineBusiness.configureListener(connections[i]);
+         DelivererBusiness.configureListener(connections[i]);
+         DeliveryRouteBusiness.configureListener(connections[i]);
       }
    }
 

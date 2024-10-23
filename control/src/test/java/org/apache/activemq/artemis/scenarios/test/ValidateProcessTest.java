@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.scenarios.model.requests.BusinessProcessReque
 import org.apache.activemq.artemis.scenarios.model.requests.OrdersIncomeRequest;
 import org.apache.activemq.artemis.scenarios.service.BusinessService;
 import org.apache.activemq.artemis.scenarios.service.IncomeService;
+import org.apache.activemq.artemis.scenarios.service.business.DeliveryRouteBusiness;
 import org.apache.activemq.artemis.scenarios.service.business.ManufactureRouterBusiness;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.FileUtil;
@@ -56,7 +57,7 @@ public class ValidateProcessTest {
    private Process serverProcess;
 
    private static String QUEUE_LIST = "ProductionCompletion,IncomeOrder,Manufacturing.Line0,Manufacturing.Line1,Manufacturing.Line2,Manufacturing.Line3,Manufacturing.Line4,Manufacturing.Line5,Manufacturing.Line6,Manufacturing.Line7,Manufacturing.Line8,Manufacturing.Line9";
-   private static String ADDRESS_LIST = "Delivery";
+   private static String ADDRESS_LIST = "DeliveryRoutes";
 
    @BeforeAll
    public static void createServer() throws Exception {
@@ -69,6 +70,7 @@ public class ValidateProcessTest {
       cliCreateServer.setArtemisInstance(ARTEMIS_INSTANCE);
       cliCreateServer.addArgs("--queues", QUEUE_LIST);
       cliCreateServer.addArgs("--addresses", ADDRESS_LIST);
+      cliCreateServer.setNoWeb(false);
       cliCreateServer.createServer();
 
 
@@ -127,12 +129,9 @@ public class ValidateProcessTest {
 
    @Test
    public void testConnections() throws Exception {
-      int nElements = 5000;
+      int nElements = 100_000;
       OrdersIncomeRequest ordersIncomeRequest = new OrdersIncomeRequest();
       ordersIncomeRequest.setNumberOfOrders(nElements).setCommitInterval(100).setUri("tcp://localhost:61616").setProtocol("CORE");
-
-      IncomeService incomeService = new IncomeService();
-      incomeService.process(ordersIncomeRequest);
 
       BusinessProcessRequest businessProcessRequest = new BusinessProcessRequest();
       businessProcessRequest.setUri("tcp://localhost:61616").setProtocol("CORE");
@@ -142,22 +141,32 @@ public class ValidateProcessTest {
       BusinessService manufacturingRouteService = new BusinessService();
       manufacturingRouteService.startConnections(businessProcessRequest);
 
+      IncomeService incomeService = new IncomeService();
+      incomeService.process(ordersIncomeRequest);
+
       SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
 
+      validateMessageCount(simpleManagement, ManufactureRouterBusiness.INCOME_ADDRESS, 0);
+      validateMessageCount(simpleManagement, DeliveryRouteBusiness.OUTPUT_ADDRESS, nElements);
+
+      Thread.sleep(5000);
+
+      manufacturingRouteService.closeConnections();
+
+
+      System.out.println("Done");
+   }
+
+   private static void validateMessageCount(SimpleManagement simpleManagement, String queue, int expectedCount) throws Exception {
       Waiter.waitFor(() -> {
          try {
-            return simpleManagement.getMessageCountOnQueue(ManufactureRouterBusiness.INCOME_ADDRESS) == 0;
+            return simpleManagement.getMessageCountOnQueue(queue) == expectedCount;
          } catch (Exception e) {
             e.printStackTrace();
             return false;
          }
       }, TimeUnit.SECONDS, 300, TimeUnit.MILLISECONDS, 100);
 
-      assertEquals(0,  simpleManagement.getMessageCountOnQueue(ManufactureRouterBusiness.INCOME_ADDRESS));
-
-      manufacturingRouteService.closeConnections();
-
-
-      System.out.println("Done");
+      assertEquals(expectedCount, simpleManagement.getMessageCountOnQueue(queue));
    }
 }

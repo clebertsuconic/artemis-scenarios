@@ -23,16 +23,20 @@ Address used to divert manufacturing lines
 
 - ProductionCompletion
 
-- PickupEvent
+- CustomerDeliveredEvent
 
 
-- Delivery:
+- DeliveryRoutes:
 * Topic with durable subscriptions to choose from the options.
 
 
-- There will be two subscriptions:
-* zipCode <= 50
-* zipCode > 50
+- There will be 10 subscriptions:
+* zipCode > 0 && <= 10
+* zipCode > 10 && <= 20
+* zipCode > 20 && <= 30
+....
+* zipCode > 90 && <= 100
+
 
 
 
