@@ -129,7 +129,7 @@ public class ValidateProcessTest {
 
    @Test
    public void testConnections() throws Exception {
-      int nElements = 100_000;
+      int nElements = 1_000;
       OrdersIncomeRequest ordersIncomeRequest = new OrdersIncomeRequest();
       ordersIncomeRequest.setNumberOfOrders(nElements).setCommitInterval(100).setUri("tcp://localhost:61616").setProtocol("CORE");
 

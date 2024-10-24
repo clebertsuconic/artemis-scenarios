@@ -40,28 +40,14 @@ public class ManufactureRouterBusiness {
 
 
    private static class Listener extends BaseListener {
-
-      MessageProducer producer;
-
       Listener(Session session, MessageConsumer consumer) throws Exception {
          super(session, consumer);
-         producer = session.createProducer(session.createQueue(OUTPUT_ADDRESS));
       }
 
-      @Override
-      public void onMessage(Message message) {
-         try {
-            producer.send(message);
-            session.commit();
-         } catch (Exception e) {
-            e.printStackTrace();
-            try {
-               session.rollback();
-            } catch (Throwable e2) {
-               e.printStackTrace();
-            }
-         }
+      protected MessageProducer createProducer() throws Exception {
+         return session.createProducer(session.createQueue(OUTPUT_ADDRESS));
       }
+
    }
 
 }

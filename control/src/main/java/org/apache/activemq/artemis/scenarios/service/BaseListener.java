@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.scenarios.service;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 public abstract class BaseListener implements MessageListener {
@@ -27,11 +28,38 @@ public abstract class BaseListener implements MessageListener {
    protected final Session session;
    protected final MessageConsumer consumer;
 
+   protected MessageProducer producer = null;
+
+
+   @Override
+   public void onMessage(Message message) {
+      try {
+         if (producer == null) {
+            producer = createProducer();
+         }
+
+         message = processMessage(message);
+
+         producer.send(message);
+         session.commit();
+      } catch (Exception e) {
+         e.printStackTrace();
+         try {
+            session.rollback();
+         } catch (Throwable e2) {
+            e.printStackTrace();
+         }
+      }
+   }
+   protected abstract MessageProducer createProducer() throws Exception;
 
    public BaseListener(Session session, MessageConsumer consumer) throws Exception {
       this.session = session;
       this.consumer = consumer;
    }
 
+   protected Message processMessage(Message message) {
+      return message;
+   }
 
 }
