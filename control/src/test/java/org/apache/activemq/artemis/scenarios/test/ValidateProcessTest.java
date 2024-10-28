@@ -109,25 +109,6 @@ public class ValidateProcessTest {
    }
 
    @Test
-   public void testProcess() throws Exception {
-      int nElements = 5000;
-      OrdersIncomeRequest ordersIncomeRequest = new OrdersIncomeRequest();
-      ordersIncomeRequest.setNumberOfOrders(nElements).setCommitInterval(100).setUri("tcp://localhost:61616").setProtocol("CORE");
-
-      IncomeService incomeService = new IncomeService();
-      incomeService.process(ordersIncomeRequest);
-
-      BusinessProcessRequest businessProcessRequest = new BusinessProcessRequest();
-      businessProcessRequest.setUri("tcp://localhost:61616").setProtocol("CORE");
-
-      businessProcessRequest.setElements(nElements).setConnections(10);
-
-      BusinessService businessService = new BusinessService();
-      businessService.process(businessProcessRequest);
-      System.out.println("Done");
-   }
-
-   @Test
    public void testConnections() throws Exception {
       int nElements = 1_000;
       OrdersIncomeRequest ordersIncomeRequest = new OrdersIncomeRequest();
@@ -149,12 +130,7 @@ public class ValidateProcessTest {
       validateMessageCount(simpleManagement, ManufactureRouterBusiness.INCOME_ADDRESS, 0);
       validateMessageCount(simpleManagement, DeliveryRouteBusiness.OUTPUT_ADDRESS, nElements);
 
-      Thread.sleep(5000);
-
       manufacturingRouteService.closeConnections();
-
-
-      System.out.println("Done");
    }
 
    private static void validateMessageCount(SimpleManagement simpleManagement, String queue, int expectedCount) throws Exception {
