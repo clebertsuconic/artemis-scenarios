@@ -43,7 +43,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ValidateProcessTest {
 
    // Set this to false if you want to create and start your own server
-   public static final boolean CREATE_SERVERS = true;
+   public static final boolean CREATE_SERVERS = Boolean.parseBoolean(System.getProperty("ValidateProcessTest.createServers", "true"));
+
+   public static final String ORDERS_INCOME_REQUEST_URI = System.getProperty("ValidateProcessTest.ordersIncomeRequest", "tcp://localhost:61616");
+   public static final String BUSINESS_PROCESS_REQUEST_URI = System.getProperty("ValidateProcessTest.businessProcessRequest", "tcp://localhost:61616");
+   public static final String SIMPLE_MANAGEMENT_URI = System.getProperty("ValidateProcessTest.simpleManagement", "tcp://localhost:61616");
+
 
    // Set this to true if you want to enable tracing on the server
    public static final boolean TRACE_LOGS = false;
@@ -112,10 +117,10 @@ public class ValidateProcessTest {
    public void testConnections() throws Exception {
       int nElements = 1_000;
       OrdersIncomeRequest ordersIncomeRequest = new OrdersIncomeRequest();
-      ordersIncomeRequest.setNumberOfOrders(nElements).setCommitInterval(100).setUri("tcp://localhost:61616").setProtocol("CORE");
+      ordersIncomeRequest.setNumberOfOrders(nElements).setCommitInterval(100).setUri(ORDERS_INCOME_REQUEST_URI).setProtocol("CORE");
 
       BusinessProcessRequest businessProcessRequest = new BusinessProcessRequest();
-      businessProcessRequest.setUri("tcp://localhost:61616").setProtocol("CORE");
+      businessProcessRequest.setUri(BUSINESS_PROCESS_REQUEST_URI).setProtocol("CORE");
 
       businessProcessRequest.setElements(nElements).setConnections(10);
 
@@ -125,7 +130,7 @@ public class ValidateProcessTest {
       IncomeService incomeService = new IncomeService();
       incomeService.process(ordersIncomeRequest);
 
-      SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
+      SimpleManagement simpleManagement = new SimpleManagement(SIMPLE_MANAGEMENT_URI, null, null);
 
       validateMessageCount(simpleManagement, ManufactureRouterBusiness.INCOME_ADDRESS, 0);
       validateMessageCount(simpleManagement, DeliveryRouteBusiness.OUTPUT_ADDRESS, nElements);
